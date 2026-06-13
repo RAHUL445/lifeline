@@ -1,0 +1,36 @@
+---
+artifact: test_result
+scope: "{{SCOPE}}"
+phase: test
+status: in_progress
+created: "{{DATE}}"
+last_updated: "{{DATE}}"
+cycle_id: "{{CYCLE_ID}}"
+---
+
+# Test results — {{SCOPE}}
+
+> Append-only. Each wave attempt appends here, including retries. Orchestrator-written
+> from TEST_RESULT payloads.
+
+## Test verdict summary
+
+| Wave | Framework | Attempts | Passed | Failed | Skipped | Verdict | Coverage |
+|---|---|---|---|---|---|---|---|
+
+<!-- end-of-file authoring hint
+Per-attempt block format:
+
+## Wave <ID> test run <attempt>/<retry_cap>
+- **Started:** <ISO timestamp>
+- **Command:** <exact command>
+- **Exit code:** <code>
+- **Summary:** <N passed, N failed, N skipped>
+- **Failures:**
+  - <test id> — <one-line cause> — <classification> — task <id>
+- **Verdict:** PASS | FAIL
+- **Coverage:** enabled | disabled (tooling absent)
+  - <changed file> — <pct>%, uncovered lines <ranges> — OK | GAP
+- **Coverage verdict:** OK | GAP   (GAP is advisory — never fails the wave; seeds the
+  merge smoke checklist and the QA_DOC)
+-->

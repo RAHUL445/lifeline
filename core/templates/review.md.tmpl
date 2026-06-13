@@ -1,0 +1,45 @@
+---
+artifact: review
+scope: "{{SCOPE}}"
+phase: review
+status: in_progress
+created: "{{DATE}}"
+last_updated: "{{DATE}}"
+cycle_id: "{{CYCLE_ID}}"
+---
+
+# Review log — {{SCOPE}}
+
+> Append-only. Orchestrator-written from REVIEW_FINDINGS JSON. ONE review per task,
+> always all four lenses, depth scaled to task effort.
+
+## Review verdict summary
+
+| Task | Depth | Logic | Architecture | Security | Performance | Overall |
+|---|---|---|---|---|---|---|
+
+<!-- end-of-file authoring hint
+Per-task block format:
+
+## Task <task_id> review
+- **Effort / depth:** <effort> / <light|standard|deep>
+- **Reviewed:** <ISO timestamp>
+- **Verdict:** APPROVE | REQUEST_CHANGES
+
+### Logic
+- **Verdict:** APPROVE | REQUEST_CHANGES
+- **Findings:**
+  - blocker  file:line — issue — fix
+
+### Architecture
+...same shape...
+
+### Security
+...same shape (severities: critical|high|medium|low|info)...
+
+### Performance
+...same shape...
+
+Severity → block mapping: logic{blocker,major} architecture{blocker}
+security{critical,high} performance{critical}. Overall blocks if any lens blocks.
+-->

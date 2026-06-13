@@ -1,0 +1,72 @@
+# lifeline default configuration (portable — read by core/commands/lifecycle.md on every
+# harness; override per repo with .lifeline/config.yaml or per invocation with flags).
+
+retry_cap: 3                 # test/review retry attempts per wave before @ask_user
+autonomy: gated              # gated (pause at spec/plan/merge) | auto (pause at merge only)
+isolation: branch            # default offered at the startup wizard: worktree (FULL only) |
+                             # branch (new lifeline/<scope> in place) | current (no new branch).
+                             # The hard pre-commit @run_hook gate keys on the lifeline/* prefix,
+                             # so 'current' makes that gate inert — tdd-discipline self-check still runs.
+diff_size_warn: 500          # added-lines threshold for the post-edit reminder / self-check
+artifact_root: ".lifeline"   # cycle artifacts live at <artifact_root>/<scope>/. Per project,
+                             # a repo-root .lifelinerc (written by the startup wizard) overrides
+                             # this — an in-repo path or an absolute path outside the repo.
+
+dispatch_mode: auto          # how @dispatch_agent runs roles — a real perf/cost tradeoff, not a
+                             # capability claim. auto (recommended) | agent | inline.
+                             #   agent    : isolated context per role (parallel where the adapter
+                             #              supports it). Wins on parallel multi-task waves and
+                             #              large effort (context isolation), but each dispatch pays
+                             #              a cold-start cost (re-read skill + contract + files).
+                             #   inline   : run the role's skill in the current (warm) context.
+                             #              No cold-start, cheaper + faster for single-task /
+                             #              trivial-small / sequential work. First-class CHOICE here,
+                             #              not only a degradation. Same payload, same artifacts.
+                             #   auto     : per dispatch — agent when a wave has >=2 independent
+                             #              tasks OR effort is large; inline otherwise (single-task
+                             #              waves, trivial/small effort, single-role spec/plan/review).
+                             # Degraded tiers (no agent native) are always inline regardless.
+
+# Single effort-scaled four-lens review — fixed shape, no reviewer-mode toggles.
+review:
+  lenses: [logic, architecture, security, performance]   # always all four
+  block_on:
+    logic: [blocker, major]
+    architecture: [blocker]
+    security: [critical, high]
+    performance: [critical]
+  depth_by_effort:           # see core/contracts/REVIEW_FINDINGS.md
+    trivial: light
+    small: light
+    medium: standard
+    large: deep
+
+# Coverage→smoke (marquee mechanism — see core/skills/coverage-to-smoke/SKILL.md).
+coverage_check:
+  enabled: true
+  min_changed_file_pct: 70
+  fail_on_zero: true
+  scope: changed_files_only  # never whole-repo
+
+manual_smoke_gate: true      # human verifies success criteria + GAP paths before merge
+
+# model_hint routing for @dispatch_agent (harness maps hints to its own model names;
+# harnesses without model selection ignore hints).
+model_routing:
+  trivial: small
+  small: default
+  medium: default
+  large: default
+
+commit_format:
+  subject_template: "[{scope}] {type}({wave_id}): {subject}"
+  include_task_list: true
+  include_cycle_id: true
+  default_type: feat
+  type_map:
+    new_feature: feat
+    bugfix: fix
+    refactor: refactor
+    docs: docs
+    test: test
+    chore: chore

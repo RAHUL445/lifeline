@@ -1,0 +1,31 @@
+{
+  "name": "lifeline",
+  "displayName": "lifeline",
+  "description": "The auditable, coverage-honest dev lifecycle that runs anywhere and hands off to humans. Spec → plan → build → review → test → merge (+ debug lane), with coverage-gap smoke seeding, reviewer/QA handoff docs, and a portable markdown core that adapts to any harness.",
+  "version": "0.5.0",
+  "author": {
+    "name": "Rahul Pandey",
+    "email": "rahul.pan8991@gmail.com"
+  },
+  "homepage": "https://github.com/RAHUL445/lifeline",
+  "repository": "https://github.com/RAHUL445/lifeline",
+  "license": "MIT",
+  "category": "workflow",
+  "keywords": [
+    "workflow",
+    "development-lifecycle",
+    "multi-harness",
+    "portable",
+    "code-review",
+    "coverage",
+    "qa-handoff",
+    "tdd",
+    "debugging",
+    "orchestration"
+  ],
+  "skills": "./core/skills/",
+  "agents": "./adapters/cursor/agents/",
+  "commands": "./adapters/cursor/commands/",
+  "rules": "./adapters/cursor/rules/",
+  "hooks": "./adapters/cursor/hooks/hooks.json"
+}

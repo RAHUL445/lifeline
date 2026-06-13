@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      { "command": "${CURSOR_PLUGIN_ROOT}/adapters/cursor/hooks/lifeline-session-start.sh" }
+    ],
+    "beforeShellExecution": [
+      { "command": "${CURSOR_PLUGIN_ROOT}/adapters/cursor/hooks/lifeline-pre-commit.sh" }
+    ],
+    "afterFileEdit": [
+      { "command": "${CURSOR_PLUGIN_ROOT}/adapters/cursor/hooks/lifeline-after-edit.sh" }
+    ]
+  }
+}

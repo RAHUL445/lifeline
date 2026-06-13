@@ -1,0 +1,12 @@
+# lifeline artifact roots (default + common relocations)
+.lifeline/
+
+# macOS
+.DS_Store
+
+# editor scratch
+*.swp
+*~
+
+# founding spec — kept local, not published
+PRD.md

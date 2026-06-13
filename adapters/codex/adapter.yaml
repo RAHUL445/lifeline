@@ -1,0 +1,27 @@
+# lifeline adapter — Codex (STUB, minimum tier)
+#
+# Proves the "new harness ≈ one file" claim (acceptance criterion 4): every primitive
+# bound to its manifest degradation; no other files shipped. A cycle run against this
+# adapter must COMPLETE — sequentially, with soft gates and text prompts.
+# Promote bindings to native as Codex capabilities are validated.
+
+harness: codex
+tier: DEGRADED
+manifest_version: 1
+status: stub
+
+bindings:
+  dispatch_agent:
+    binding: degraded   # inline, sequential, same payloads
+  ask_user:
+    binding: degraded   # numbered text prompt (reuse adapters/cursor/prompt-conventions.md format)
+  persist_state:
+    binding: degraded   # state.json in artifact_root; re-read on resume
+  run_hook:
+    binding: degraded   # soft in-skill self-checks; log enforcement.advisory
+  tool_set:
+    binding: degraded   # map to Codex-native read/edit/exec/search names
+  command_namespace:
+    binding: degraded   # invoke core/commands/lifecycle.md by name as a skill
+  artifact_root:
+    binding: degraded   # ./.lifeline/<scope>/

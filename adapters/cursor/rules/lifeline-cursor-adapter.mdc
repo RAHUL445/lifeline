@@ -1,0 +1,45 @@
+---
+description: lifeline plugin (Cursor FULL tier). Invoke /lifeline-lifecycle start|continue|status|abort|debug|guide. Skills auto-trigger on intent; artifacts in .lifeline/<scope>/.
+alwaysApply: false
+---
+
+# lifeline — Cursor adapter
+
+**Harness:** cursor · **Tier:** FULL (Cursor ≥ 2.4; documented fallbacks otherwise)
+**Plugin root:** `${CURSOR_PLUGIN_ROOT}` — resolve every `core/*`, `adapters/*`, and
+`docs/*` path from there, not from the project repo root.
+
+## Invoke the orchestrator
+
+```
+/lifeline-lifecycle start
+/lifeline-lifecycle continue
+/lifeline-lifecycle status
+/lifeline-lifecycle abort
+/lifeline-lifecycle debug <description>
+/lifeline-lifecycle guide
+```
+
+Flags: `--auto` · `--retry-cap=N`. No slash commands in this session? Say:
+`run the lifeline lifecycle <args>`.
+
+## Primitive bindings (native → fallback)
+
+| Primitive | Cursor |
+|---|---|
+| `@dispatch_agent` | Subagents (`adapters/cursor/agents/lifeline-*`), **parallel** per wave → inline sequential |
+| `@ask_user` | Interactive Q&A tool → numbered text prompt (`adapters/cursor/prompt-conventions.md`) |
+| `@persist_state` | `.lifeline/<scope>/state.json` + sessionStart hook surfacing |
+| `@run_hook` | `hooks/hooks.json` (pre-commit deny gate, session-start resume, diff-size log) → soft self-checks, log `enforcement.advisory harness=cursor` |
+| `@command_namespace` | `/lifeline-lifecycle` → invoke by name |
+| `@artifact_root` | `.lifeline/<scope>/` in this repo |
+
+## Installed skills (ambient + orchestrated)
+
+`using-lifeline` · `spec-discipline` · `planning-waves` · `tdd-discipline` ·
+`implementing-task` · `four-lens-review` · `coverage-to-smoke` · `handoff-docs` ·
+`merge-discipline` · `systematic-debugging` · `resuming-a-cycle` · `payload-contracts` ·
+`writing-lifeline-skills` · `lifeline-lifecycle`
+
+Config: `${CURSOR_PLUGIN_ROOT}/core/config/defaults.yaml`. Contracts:
+`${CURSOR_PLUGIN_ROOT}/core/contracts/`. Templates: `${CURSOR_PLUGIN_ROOT}/core/templates/`.

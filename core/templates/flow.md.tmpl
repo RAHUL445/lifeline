@@ -1,0 +1,38 @@
+---
+artifact: flow
+scope: "{{SCOPE}}"
+phase: "{{PHASE}}"
+status: in_progress
+created: "{{DATE}}"
+last_updated: "{{DATE}}"
+cycle_id: "{{CYCLE_ID}}"
+---
+
+# Flow — {{SCOPE}}
+
+> Append-only event log: phases, gates, dispatches, retries, verdicts, overrides.
+> Orchestrator-written, one line per event. Code changes go to changelog.md, never here.
+
+## Events
+
+<!-- end-of-file authoring hint
+[ISO] cycle.start scope=<name> isolation=<i> autonomy=<a> dispatch=<auto|agent|inline>
+[ISO] enforcement.advisory harness=<h>            (degraded tiers, once per cycle)
+[ISO] phase.spec.opens.resolved count=<N>
+[ISO] phase.spec.gate.approved open_qs_resolved=<N>
+[ISO] phase.plan.gate.chosen=<id>
+[ISO] phase.plan.gate.approved
+[ISO] wave.<id>.start tasks=<T1,T2>
+[ISO] agent.<role>.dispatch task=<id> model=<hint> mode=<agent|inline>
+[ISO] agent.<role>.done task=<id> mode=<agent|inline> secs=<elapsed>
+[ISO] wave.<id>.test.verdict=<PASS|FAIL> failed=<n>
+[ISO] task.<id>.review.verdict=<APPROVE|REQUEST_CHANGES> findings=<n>
+[ISO] retry task=<id> reason=<test-fail|review-block> attempt=<n>/<cap>
+[ISO] wave.<id>.skip.user_override attempts_exhausted
+[ISO] commit.aborted wave=<id> reason=test_verdict_not_PASS
+[ISO] wave.<id>.done commit=<sha> secs=<elapsed>
+[ISO] phase.merge.invariant.passed
+[ISO] phase.merge.smoke.passed verified=<N>   | .failed criterion="<text>" | .skip.user_override
+[ISO] handoff.docs.written reviewer_doc qa_doc
+[ISO] cycle.end status=<success|aborted> action=<branch|merge|rebase|discard|keep>
+-->

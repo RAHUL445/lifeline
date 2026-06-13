@@ -1,0 +1,70 @@
+---
+artifact: bug
+scope: "{{SCOPE}}"
+phase: "{{PHASE}}"
+status: in_progress
+created: "{{DATE}}"
+last_updated: "{{DATE}}"
+cycle_id: "{{CYCLE_ID}}"
+---
+
+# Bug — {{SCOPE}}
+
+## Description
+
+<bug summary + user-reported behavior>
+
+## Reproduction
+
+- **Test path:** <tests/...>
+- **Test ID:** <framework::id>
+- **Command:** `<how to run just this test>`
+- **Expected:** <one line>
+- **Actual:** <one line>
+
+### Failure excerpt
+
+```
+<traceback / stderr, ≤30 lines>
+```
+
+## Root Cause Analysis
+
+<paragraph from RCA_RESULT.root_cause>
+
+### Affected files
+
+- <path>
+
+### Effort
+
+<trivial|small|medium|large>
+
+### Scope
+
+<single-task|multi-task>
+
+### Fix approach
+
+<paragraph — what, not how>
+
+### Risks
+
+<regressions, side effects>
+
+### Suspect commit
+
+<sha or "unclear">
+
+### Test gap notes
+
+<why existing tests missed this>
+
+### Related findings
+
+<out-of-scope issues noticed — advisory only>
+
+<!-- end-of-file authoring hint
+Description + Reproduction written from REPRO_RESULT; RCA section from RCA_RESULT.
+Orchestrator is the sole writer. No fix until the post-RCA gate approves.
+-->

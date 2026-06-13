@@ -1,0 +1,92 @@
+# lifeline capability manifest
+#
+# The portable core (everything under core/) references runtime capabilities ONLY by the
+# abstract names defined here. It never names a harness-specific primitive.
+# Each harness ships adapters/<harness>/adapter.yaml binding these names to real features —
+# or to the documented degradation. Degrade, never block: a missing primitive always has
+# a defined fallback; the cycle must be able to COMPLETE on any harness with an adapter.
+#
+# Tier semantics:
+#   FULL     — all primitives bound to native features (hard gates, parallel dispatch).
+#   DEGRADED — one or more primitives bound to their degradation (soft gates, sequential).
+# The forced tradeoff (see docs/PORTABILITY.md): degraded harnesses keep 100% of the
+# methodology and artifacts but lose hard-gate enforcement and parallel wave execution.
+
+version: 1
+
+primitives:
+  dispatch_agent:
+    contract: >
+      Run a named role (defined by a core skill + a core/contracts/ payload schema) in
+      isolation with an inline brief; return its structured payload string. The caller
+      (orchestrator) persists the payload to artifacts — the role never writes artifacts.
+    inputs: [role, brief, model_hint]
+    returns: payload_text
+    degradation: >
+      Run the role's skill inline in the current context, sequentially, one role at a time.
+      Produce the same payload and persist it identically. Never silently drop the payload.
+    note: >
+      Inline execution is ALSO a first-class user choice, not only a fallback. The
+      config dispatch_mode (auto | agent | inline; see core/config/defaults.yaml)
+      may force inline even where native agents exist — a perf/cost tradeoff, since
+      each agent dispatch pays a cold-start cost (re-read skill + contract + files)
+      that inline (warm context) avoids. agent still wins on parallel multi-task
+      waves and large-effort context isolation. The payload and artifacts are identical
+      either way; only latency, token cost, and concurrency differ.
+
+  ask_user:
+    contract: >
+      Present a question plus 2-6 labeled options; return the chosen label (and optional
+      free text). Used at approval gates, overrides, and branch actions.
+    inputs: [question, options]
+    returns: chosen_label
+    degradation: >
+      Print the question and numbered options as plain text; instruct the user to reply
+      with a number; parse the reply. Format defined in the adapter's prompt conventions.
+
+  persist_state:
+    contract: >
+      Read/write a small JSON state blob keyed by scope: {scope, phase, mode, cycle_id,
+      chosen_approach, active_task, wave_attempts, wave_overrides, smoke}. Survives session
+      restart so a cycle resumes cold.
+    inputs: [scope, state_json]
+    returns: state_json
+    degradation: >
+      Write state.json inside artifact_root. No automatic reload on session start — the
+      resuming-a-cycle skill re-reads it when the user says "continue"/"resume".
+
+  run_hook:
+    contract: >
+      Deterministically execute a gate at a lifecycle event: pre-commit verdict check,
+      post-edit diff-size reminder, statusline badge, session-start state surfacing.
+    inputs: [event, payload]
+    returns: allow_or_block
+    degradation: >
+      NO hard gate. The relevant skill embeds the identical check as a mandatory
+      self-instruction (soft gate) executed by the orchestrator before the action.
+      Log to flow.md that enforcement is advisory on this harness.
+
+  tool_set:
+    contract: >
+      Names of the file-read, file-write, shell-exec, and search tools that roles may use.
+      The core refers to them generically as read/write/exec/search.
+    degradation: >
+      Map to harness-native tool names. If no shell-exec exists, the test-runner role
+      degrades to: ask the user to run the printed test command and paste the output.
+
+  command_namespace:
+    contract: >
+      How the orchestration command (core/commands/lifecycle.md) is invoked by the user.
+    degradation: >
+      If the harness has no slash-command system, the user invokes lifecycle.md by name
+      as a skill/rule ("run the lifeline lifecycle").
+
+  artifact_root:
+    contract: >
+      Durable directory for cycle artifacts: spec, plan, task, review, test_result, flow,
+      changelog, state, reviewer_doc, qa_doc. One subdirectory per scope.
+    degradation: >
+      Default to ./.lifeline/<scope>/ at the repo root. A repo-root .lifelinerc may
+      override the location per project (an in-repo path or an absolute path elsewhere);
+      it is the single committed pointer that tells every reader — orchestrator, hooks,
+      resume — where the artifacts actually live.

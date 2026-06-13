@@ -1,0 +1,68 @@
+---
+artifact: plan
+scope: "{{SCOPE}}"
+phase: plan
+status: draft
+created: "{{DATE}}"
+last_updated: "{{DATE}}"
+cycle_id: "{{CYCLE_ID}}"
+chosen_approach: ""
+---
+
+# Plan — {{SCOPE}}
+
+## Approaches
+
+| ID | Name | Summary | Pros | Cons / Risks | Effort | Chosen |
+|---|---|---|---|---|---|---|
+| A | <name> | <2 sentences> | <pros> | <cons> | S/M/L | [ ] |
+| B | <name> | <2 sentences> | <pros> | <cons> | S/M/L | [ ] |
+
+## Architecture (per approach)
+
+### Approach A — Architecture
+
+- **Components:** <module / service / class names + role>
+- **Data flow:** <text sequence>
+- **Public interfaces:** <signatures, endpoints, schemas>
+- **External deps:** <libs, services>
+- **Key trade-offs vs other approaches:** <what this design accepts/sacrifices>
+
+### Approach B — Architecture
+
+- **Components:**
+- **Data flow:**
+- **Public interfaces:**
+- **External deps:**
+- **Key trade-offs vs other approaches:**
+
+> Tasks below are generated for the **chosen** approach only.
+
+## Epics → Tasks
+
+| Epic | Task ID | Title | Files | Deps | Tests | Wave | Status |
+|---|---|---|---|---|---|---|---|
+| 1. <name> | 1.1 | <title> | `<path>` | — | <test approach> | W1 | [ ] |
+| 1. <name> | 1.2 | <title> | `<path>` | 1.1 | <test approach> | W2 | [ ] |
+
+**Wave rules:** same-wave tasks have all deps satisfied by earlier waves and never touch
+overlapping files. FULL tier runs a wave's tasks in parallel; degraded tiers run them
+sequentially — grouping is identical either way.
+
+## Subtasks
+
+### Task 1.1 — <title>
+
+- <subtask> — effort: trivial|small|medium|large
+
+## Dependencies & risks
+
+| Item | Type | Notes |
+|---|---|---|
+| <dep or risk> | dep / risk | <notes> |
+
+<!-- end-of-file authoring hint
+Effort labels drive model routing AND review depth — keep them honest.
+trivial: <20 LOC single file, no design. small: 1-2 files <100 LOC mechanical.
+medium: multi-file <300 LOC some design. large: cross-cutting, significant design.
+-->

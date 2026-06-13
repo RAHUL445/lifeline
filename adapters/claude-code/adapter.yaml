@@ -1,0 +1,67 @@
+# lifeline adapter — Claude Code (FULL tier)
+#
+# Binds every primitive in core/capability-manifest.yaml to a native Claude Code feature.
+# No degradations active on this harness.
+
+harness: claude-code
+tier: FULL
+manifest_version: 1
+
+bindings:
+  dispatch_agent:
+    binding: native
+    how: >
+      Named subagents in adapters/claude-code/agents/ (thin shells that load the relevant
+      core skill + contract and return the payload). Dispatch via the Agent tool. Multiple
+      implementers in one wave and the test run for independent waves go out as parallel
+      tool calls in a single message. model_hint maps to the Agent tool's model parameter
+      (trivial → haiku, default → sonnet).
+    concurrency: parallel
+
+  ask_user:
+    binding: native
+    how: AskUserQuestion tool (labeled options widget, supports headers and descriptions).
+
+  persist_state:
+    binding: native
+    how: >
+      JSON file at <artifact_root>/<scope>/state.json. The SessionStart hook scans for
+      active state files and surfaces "cycle pending — run continue" context automatically,
+      so cold resume needs no user memory of where things stood.
+
+  run_hook:
+    binding: native
+    how: >
+      Real hooks registered in adapters/claude-code/hooks/hooks.json —
+      PreToolUse(Bash) pre-commit gate (secret scan + lint, hard block),
+      PostToolUse(Write|Edit) diff-size reminder,
+      SessionStart active-cycle surfacing,
+      statusline.sh badge [ll: <scope> · <phase>].
+    enforcement: hard
+
+  tool_set:
+    binding: native
+    map:
+      read: Read
+      write: Write/Edit
+      exec: Bash
+      search: Glob/Grep
+
+  command_namespace:
+    binding: native
+    how: "/lifeline:lifecycle [start|continue|status|abort|debug|guide]"
+
+  artifact_root:
+    binding: native
+    path: ".lifeline/<scope>/"
+    notes: >
+      Default .lifeline/<scope>/ at the repo root; a repo-root .lifelinerc set by the
+      startup wizard may relocate it (an in-repo path or an absolute path elsewhere).
+      The SessionStart hook and statusline resolve the location from .lifelinerc.
+      When the optional worktree isolation is enabled (Claude-Code-only nicety, not a
+      portable claim), artifacts stay in the MAIN repo's artifact_root while code
+      changes happen in the worktree.
+
+# CC-only extras (not primitives; absence elsewhere costs nothing portable):
+extras:
+  worktree_isolation: optional   # git worktree per scope; branch lifeline/<scope>

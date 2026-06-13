@@ -1,0 +1,95 @@
+# lifeline adapter — Cursor (FULL tier, Cursor ≥ 2.4)
+#
+# Distributed as a Cursor plugin (see .cursor-plugin/plugin.json) — installed from a
+# marketplace (import-from-repo or public listing), not by a script. Cursor surfaces the
+# plugin's skills, subagents (adapters/cursor/agents/), slash command, hooks, and rule
+# directly, and exports ${CURSOR_PLUGIN_ROOT} so every core/* and adapters/* path resolves
+# inside the installed plugin. Binds primitives to Cursor natives: subagents, the
+# interactive Q&A tool, hooks (hooks/hooks.json), and a custom slash command. Every binding
+# carries an explicit fallback — on older Cursor versions or headless (--print) runs the
+# adapter degrades to the documented text/inline behavior. Methodology and artifact set are
+# identical either way: degrade, never block.
+
+harness: cursor
+tier: FULL              # Cursor >= 2.4 (subagents, Q&A tool, hooks, slash commands)
+fallback_tier: DEGRADED # pre-2.4 Cursor, or headless/--print sessions
+manifest_version: 1
+
+bindings:
+  dispatch_agent:
+    binding: native
+    how: >
+      Cursor subagents. The thin role shells in adapters/cursor/agents/ are surfaced as
+      Cursor subagents by the plugin manifest — each runs in its own context window and
+      returns the role's payload (per ${CURSOR_PLUGIN_ROOT}/core/contracts/) to the
+      orchestrator. Dispatch a wave's tasks as parallel subagent invocations in one message.
+    concurrency: parallel
+    fallback: >
+      If subagents are unavailable, run the role's core skill INLINE in the current
+      context, one role at a time, sequentially. Produce and persist the same payload
+      exactly as an isolated subagent would.
+
+  ask_user:
+    binding: native
+    how: >
+      Cursor's interactive Q&A tool. Ask the gate question with the same 2-6 labeled
+      options the FULL-tier widget would show (recommended option first, suffixed
+      "(recommended)"). After the answer, echo the parsed choice in one line —
+      "→ Option N: <label>" — as the audit entry for flow.md.
+    fallback: >
+      If the Q&A tool is unavailable (headless/--print, older CLI), print a numbered
+      text prompt per adapters/cursor/prompt-conventions.md, wait for the user's numeric
+      reply, parse it. Same options, same audit echo.
+
+  persist_state:
+    binding: native
+    how: >
+      JSON file at <artifact_root>/<scope>/state.json, plus a sessionStart hook
+      (adapters/cursor/hooks/) that scans .lifeline/*/state.json and injects any pending
+      cycle (scope + phase) as additional context — cold resume needs no user memory.
+    fallback: >
+      Without hooks: same state.json; on "continue"/"resume" the resuming-a-cycle skill
+      re-reads the file and jumps to the recorded phase.
+
+  run_hook:
+    binding: native
+    enforcement: hard
+    how: >
+      Cursor hooks via adapters/cursor/hooks/hooks.json (declared in the plugin manifest;
+      command paths resolve under ${CURSOR_PLUGIN_ROOT}):
+      beforeShellExecution runs the pre-commit gate (secret scan + lint on lifeline/*
+      branches; permission=deny physically blocks the commit); afterFileEdit logs a
+      diff-size warning (informational — Cursor cannot message the agent from this
+      event, so the implementing-task self-check remains the agent-facing path);
+      sessionStart surfaces pending cycles. No statusline equivalent exists in Cursor.
+    fallback: >
+      No hooks: every hard gate becomes a mandatory in-skill self-check the orchestrator
+      executes itself BEFORE the action (pre-commit verdict check in tdd-discipline +
+      merge-discipline; diff-size reminder in implementing-task). Append to flow.md once
+      per cycle: "[<ISO>] enforcement.advisory harness=cursor".
+
+  tool_set:
+    binding: native
+    map:
+      read: Cursor file read
+      write: Cursor file edit
+      exec: Cursor terminal/run
+      search: Cursor codebase search
+
+  command_namespace:
+    binding: native
+    how: >
+      Custom slash command /lifeline-lifecycle (adapters/cursor/commands/, surfaced by the
+      plugin manifest), available in the editor and the CLI. It loads
+      ${CURSOR_PLUGIN_ROOT}/core/commands/lifecycle.md and executes it with the given args.
+    fallback: >
+      No slash command: invoke by name — "run the lifeline lifecycle <args>" — via the
+      lifeline-lifecycle skill / adapter rule.
+
+  artifact_root:
+    binding: native
+    path: ".lifeline/<scope>/"
+    notes: >
+      Default .lifeline/<scope>/ at the repo root; a repo-root .lifelinerc set by the
+      startup wizard may relocate it (an in-repo path or an absolute path elsewhere).
+      The sessionStart and afterFileEdit hooks resolve the location from .lifelinerc.

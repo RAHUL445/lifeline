@@ -1,0 +1,28 @@
+---
+artifact: task
+scope: "{{SCOPE}}"
+phase: build
+status: in_progress
+created: "{{DATE}}"
+last_updated: "{{DATE}}"
+cycle_id: "{{CYCLE_ID}}"
+---
+
+# Task execution log — {{SCOPE}}
+
+> Append-only. Orchestrator-written from TASK_UPDATE payloads. Most recent at bottom.
+
+<!-- end-of-file authoring hint
+Per-task block format:
+
+## Task <ID> — <title>
+- **Started:** <ISO timestamp>
+- **Approach:** <name>
+- **Files changed:**
+  - `+ path/new`
+  - `~ path/modified`
+  - `- path/deleted`
+- **Notes:** <decisions, edge cases, open issues>
+- **Status:** code-complete | reviewed | tested | done | blocked
+- **Blockers:** <none | description>
+-->
