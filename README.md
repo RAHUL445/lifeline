@@ -1,6 +1,21 @@
-# 🪢 lifeline
+<div align="center"><pre>
+██╗     ██╗███████╗███████╗██╗     ██╗███╗   ██╗███████╗
+██║     ██║██╔════╝██╔════╝██║     ██║████╗  ██║██╔════╝
+██║     ██║█████╗  █████╗  ██║     ██║██╔██╗ ██║█████╗  
+██║     ██║██╔══╝  ██╔══╝  ██║     ██║██║╚██╗██║██╔══╝  
+███████╗██║██║     ███████╗███████╗██║██║ ╚████║███████╗
+╚══════╝╚═╝╚═╝     ╚══════╝╚══════╝╚═╝╚═╝  ╚═══╝╚══════╝
+        Your coding agent — now it leaves a paper trail. 🪢
+</pre></div>
 
-**Your coding agent — now it leaves a paper trail.**
+<div align="center">
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-FULL-7c3aed)
+![Cursor](https://img.shields.io/badge/Cursor%20%E2%89%A52.4-FULL-0ea5e9)
+![Portable](https://img.shields.io/badge/core-portable%20markdown-f59e0b)
+
+</div>
 
 lifeline runs the full dev lifecycle — spec → plan → build → review → test → merge — as
 gated phases that produce real artifacts a human can read: a spec, a plan, reviews, an
