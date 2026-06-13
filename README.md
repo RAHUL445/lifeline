@@ -142,6 +142,10 @@ lifeline/
 5. **Human handoff is part of the lifecycle.** A cycle isn't done at green tests. It's done
    when a reviewer and a QA engineer can each pick up a purpose-built document. 🤝
 
+## 🎬 See it in action
+
+<div align="center"><img src="docs/demo-4x.gif" alt="lifeline demo" width="820"></div>
+
 ## 📚 Docs
 
 [Getting Started](docs/GETTING-STARTED.md) · [Configuration](docs/CONFIGURATION.md) ·
