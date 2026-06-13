@@ -23,10 +23,10 @@ harness unchanged.** Break it in one file and lifeline collapses into per-harnes
 3. **Knowledge → skill; runtime capability → primitive.** Discipline, checklists,
    processes, schemas: portable markdown. Spawning processes, blocking tool calls,
    rendering widgets, durable state: a primitive, bound per adapter.
-4. **Methodology lives exactly once.** Agents (FULL-tier shells under
-   `adapters/claude-code/agents/`) only load a core skill + contract and return the
-   payload. Never put methodology in a shell, the command, or an adapter — the command
-   sequences skills; it doesn't restate them.
+4. **Methodology lives exactly once.** Agents (FULL-tier shells under each adapter's
+   `agents/` directory) only load a core skill + contract and return the payload. Never
+   put methodology in a shell, the command, or an adapter — the command sequences skills;
+   it doesn't restate them.
 
 ## Adding a skill
 
