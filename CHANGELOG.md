@@ -8,6 +8,21 @@ versioning is [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 _Nothing yet._
 
+## [1.0.0] — 2026-06-14
+
+Stable release — public surface (install commands, `/lifeline:lifecycle` interface,
+`.lifelinerc` knobs) is now a committed contract under semver. 🪢
+
+### Added
+
+- **Demo** — `docs/demo-4x.gif`, a real Claude Code lifeline cycle recorded live with
+  asciinema, embedded in the README.
+
+### Changed
+
+- Promoted from `0.x` (pre-stable) to `1.0.0`. No behavioral change from `0.5.0`; this
+  release declares the public interface stable.
+
 ## [0.5.0] — 2026-06-13
 
 First public release. 🪢
@@ -36,5 +51,6 @@ First public release. 🪢
 - **Docs** — Getting Started, Configuration, FAQ, Architecture, Portability,
   Adding-a-harness, plus the methodology master index.
 
-[Unreleased]: https://github.com/RAHUL445/lifeline/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/RAHUL445/lifeline/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/RAHUL445/lifeline/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/RAHUL445/lifeline/releases/tag/v0.5.0

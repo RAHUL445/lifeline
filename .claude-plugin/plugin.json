@@ -1,7 +1,7 @@
 {
   "name": "lifeline",
   "description": "The auditable, coverage-honest dev lifecycle that runs anywhere and hands off to humans. Spec → plan → build → review → test → merge (+ debug lane), with coverage-gap smoke seeding, reviewer/QA handoff docs, and a portable markdown core that adapts to any harness.",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "author": {
     "name": "Rahul Pandey",
     "email": "rahul.pan8991@gmail.com"

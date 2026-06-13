@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Single-plugin marketplace for lifeline — the auditable, coverage-honest dev lifecycle that runs anywhere and hands off to humans.",
-    "version": "0.5.0"
+    "version": "1.0.0"
   },
   "plugins": [
     {
