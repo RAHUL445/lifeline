@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Single-plugin marketplace for lifeline — the auditable, coverage-honest dev lifecycle that runs anywhere and hands off to humans.",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
       "name": "lifeline",
       "source": "./",
       "description": "Full dev lifecycle (spec → plan → build → review → test → merge, + debug lane) with coverage→smoke seeding, reviewer/QA handoff docs, auditable artifact trail, and a portable core that runs on Claude Code (FULL tier), Cursor (FULL tier on ≥ 2.4, documented fallbacks otherwise), and any harness with a one-file adapter.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "category": "workflow",
       "keywords": [
         "workflow",

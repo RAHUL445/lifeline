@@ -46,6 +46,55 @@ review:
     medium: standard
     large: deep
 
+# Lint & test/coverage commands — USER-DEFINED, not imposed. The setup wizard runs the
+# detecting-project-tooling skill, proposes the project's OWN commands, the user confirms,
+# and the result is written to the repo's .lifelinerc as `lint:` / `test:` lists. Lifeline
+# never picks a tool when the user has one. These keys are NOT set here — defaults.yaml only
+# documents the shape; the built-in extension map below is the LAST-RESORT fallback used
+# only when nothing is configured AND the tool happens to be installed (loud warn either way).
+#
+#   lint:                              # ordered. A changed file's SCOPE = its first
+#                                      # (most-specific) matching glob; then EVERY entry
+#                                      # sharing that exact glob runs (linters chain).
+#     - match: "**/*.go"               # one scope, three linters -> all three run:
+#       cmd: "make gofmt"
+#     - match: "**/*.go"
+#       cmd: "make govet"
+#     - match: "**/*.go"
+#       cmd: "make gosec"
+#     - match: "services/api/**"       # path prefix = per-package (monorepo) scope.
+#       cmd: "golangci-lint run {file}" # a file here picks THIS scope, not **/*.go above
+#     - match: "**/*.ts"               # **/*.ext = by extension anywhere
+#       cmd: "eslint {file}"           # {file} present  -> run per changed file (scoped)
+#   test:                              # test is FIRST-MATCH-WINS (one coverage tool per
+#     - match: "services/api/**"       # package, not chained — unlike lint)
+#       cmd: "go test ./..."
+#       coverage: "go test -coverprofile=/tmp/ll ./... && go tool cover -func=/tmp/ll"
+#     - match: "**"
+#       cmd: "npm test"
+#       coverage: "npm test -- --coverage"   # no {file} -> whole-project entrypoint, run once
+#
+# Two contracts the lint.map grouping leans on (detection MUST honor both):
+#   1. Same group = BYTE-IDENTICAL glob string ("serviceA/**" != "serviceA/**/").
+#   2. Specific globs ordered BEFORE general ones; most-specific scope wins, NO inheritance
+#      (a file gets its scope's cmds only — repeat a shared cmd under a scope if you want it).
+# Supported glob subset (hook + grouping honor exactly this): ** , dir/** , **/*.ext , *.ext.
+# {file} = changed file path (quoted-substituted); {module} = changed module for --cov= style.
+# The orchestrator flattens `lint:` to .lifeline/lint.map (glob<TAB>cmd) so the bash
+# pre-commit hook reads it WITHOUT a YAML parser. Regenerated on `start` and `--reconfigure`.
+
+# Built-in lint fallback map — LAST RESORT only (used when no `lint:` entry matches a changed
+# file). Lifeline prefers the user's command always. eslint runs with NO root-config guard so
+# flat config (eslint.config.js) is honored; the tool resolves its own config / exit code.
+lint_fallback:
+  ".py":  "ruff check {file}"
+  ".go":  "gofmt -l {file}"
+  ".php": "phpcs {file}"
+  ".js":  "eslint {file}"
+  ".jsx": "eslint {file}"
+  ".ts":  "eslint {file}"
+  ".tsx": "eslint {file}"
+
 # Coverage→smoke (marquee mechanism — see core/skills/coverage-to-smoke/SKILL.md).
 coverage_check:
   enabled: true

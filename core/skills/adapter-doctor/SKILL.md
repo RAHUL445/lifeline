@@ -56,6 +56,21 @@ A binding that says `native` but whose backing file is missing is the highest-va
 here — `adapter.yaml` claims a capability the harness can't actually deliver. Report it
 loudly.
 
+### Tier 3 — configured commands (when `.lifelinerc` is present)
+
+If the repo has a `.lifelinerc` with `lint:`/`test:` lists, report each entry so the user
+can see what the gates will actually run (a common silent-failure source — see
+`detecting-project-tooling`):
+
+- per `lint:`/`test:` entry: the `match` glob, the `cmd`, and whether the command's first
+  binary is on `PATH` (missing binary → the gate silently skips that file at commit time).
+- whether each `match` is within the supported glob subset (`**`, `dir/**`, `**/*.ext`,
+  `*.ext`); flag anything else as a config error.
+- whether `<artifact_root>/lint.map` exists and is consistent with `lint:` (it is the
+  flattened file the bash hook reads; regenerated on `start`/`--reconfigure`).
+
+Read-only and advisory — never an exit code.
+
 ## Report
 
 Plain-text, human-first. No exit code — this is a report, not a CI gate.

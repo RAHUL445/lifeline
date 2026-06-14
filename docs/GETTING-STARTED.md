@@ -63,7 +63,7 @@ lifeline ships as a Cursor plugin. Add this repo as a marketplace, then install 
    repo so Cursor re-indexes the plugin whenever you push (at most once every ~10 min).
 3. Install the **lifeline** plugin from the imported marketplace.
 
-Cursor reads everything straight from the plugin — the 13 methodology skills + the
+Cursor reads everything straight from the plugin — the 15 methodology skills + the
 lifecycle orchestrator, the 7 role subagents, the `/lifeline-lifecycle` slash command, the
 hooks (pre-commit deny gate, session-start resume surfacing, diff-size log), and the
 adapter rule — all resolved under `${CURSOR_PLUGIN_ROOT}`. No script to run. 🎉 Open a repo
@@ -89,10 +89,15 @@ From inside your project, start the orchestrator:
 (No slash commands in your session? Say "run the lifeline lifecycle start" — the
 orchestrator is also registered as a skill by name.)
 
+**Optional but recommended on a fresh repo:** run `lifecycle setup` first. It runs the
+same wizard below but stops without starting a cycle — a deliberate one-time configure that
+auto-detects your project's lint/test tooling and writes `.lifelinerc`. Skip it and `start`
+just configures inline the first time; either way you only answer once.
+
 ### 3a. 🧙 The setup wizard (first run only)
 
-`start` opens a short wizard. Each question has a recommended default; you can take them
-all and move on (lazy is fine). It asks:
+`start` (or `setup`) opens a short wizard. Each question has a recommended default; you can
+take them all and move on (lazy is fine). It asks:
 
 1. **Storage location** — keep artifacts in-repo at `.lifeline/` (recommended) or at an
    absolute path elsewhere.
@@ -105,9 +110,15 @@ all and move on (lazy is fine). It asks:
    on a hard gate or a blocking question).
 6. **Advanced (optional)** — retry cap, coverage threshold, and `dispatch_mode`
    (`auto`/`agent`/`inline` — how roles execute; see the FAQ).
+7. **Project tooling** — lifeline inspects your repo's OWN config (package.json scripts,
+   Makefile, pyproject, Cargo.toml, monorepo workspaces, …) and proposes the `lint`/`test`
+   commands it found. Confirm, edit, or skip. Nothing detected runs until you confirm here
+   — it's the trust gate for the pre-commit lint hook. (Monorepos get a per-package command
+   each.)
 
-Your answers persist to a repo-root `.lifelinerc`, so the next cycle just offers "use last
-settings?". 💾
+Your answers persist to a repo-root `.lifelinerc`. Once it's complete the wizard is skipped
+entirely on later cycles — only scope is asked. Re-run it any time with `lifecycle setup`
+(or `lifecycle start --reconfigure`). 💾
 
 ### 3b. 👀 What you'll see, phase by phase
 
@@ -163,6 +174,8 @@ of where things stood (your future self says thanks). Other handy commands:
 ```
 /lifeline:lifecycle status     # where am I, what's next
 /lifeline:lifecycle abort      # stop the cycle cleanly
+/lifeline:lifecycle setup      # configure this project once (detect lint/test tools), no cycle
+/lifeline:lifecycle doctor     # read-only health check: primitives bound? files wired? commands runnable?
 /lifeline:lifecycle guide      # print the discovery map, start nothing
 ```
 

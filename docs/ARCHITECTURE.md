@@ -10,7 +10,7 @@ documented graceful degradation. **Degrade, never block.** 🛟
 ┌────────────────────────────── core/ (byte-identical everywhere) ───────────────┐
 │  METHODOLOGY.md          master index                                          │
 │  capability-manifest.yaml  the 7 @primitive contracts + degradations           │
-│  skills/<13>/SKILL.md    ALL methodology (auto-trigger + invoked by command)   │
+│  skills/<15>/SKILL.md    ALL methodology (auto-trigger + invoked by command)   │
 │  commands/lifecycle.md   the ONE orchestration command — speaks only @primitives│
 │  contracts/<8>.md        payload schemas (roles return, orchestrator persists) │
 │  templates/<11>.tmpl     artifact skeletons                                    │

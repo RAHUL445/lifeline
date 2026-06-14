@@ -99,6 +99,11 @@ attempted. No fixing ghosts. 👻
 3. **🔍 An auditable trail.** Every gate, retry, verdict, and override lands in an
    append-only flow log. Overrides are legal — but they resurface at the merge gate.
    No skeletons stay in the closet. 💀
+4. **🧹 Your tools, not ours.** lifeline detects the project's OWN lint/test commands
+   (package.json scripts, Makefile, pyproject, Cargo, monorepo workspaces) and runs those
+   at the pre-commit gate — never an imposed default. Monorepos get a per-package command
+   each; linters chain (gofmt + govet + gosec all run). Run `lifecycle setup` to configure
+   once, `lifecycle doctor` to check it. Nothing runs until you confirm it. 🔐
 
 ## 🧩 What's inside
 
@@ -109,7 +114,7 @@ never touch `core/`.
 ```
 lifeline/
 ├── core/                      # portable methodology — markdown only, runs anywhere
-│   ├── skills/                #   13 skills (spec, plan, TDD, review, coverage, debug, …)
+│   ├── skills/                #   15 skills (spec, plan, TDD, review, coverage, debug, …)
 │   ├── commands/lifecycle.md  #   the one orchestrated command
 │   ├── contracts/             #   payload schemas roles must return
 │   ├── templates/             #   artifact scaffolds (spec, plan, qa_doc, …)
@@ -123,7 +128,7 @@ lifeline/
 
 | Component | Count | Speaks |
 |---|---|---|
-| 🎯 Skills | 13 | the methodology — each complete on its own, auto-triggering on intent |
+| 🎯 Skills | 15 | the methodology — each complete on its own, auto-triggering on intent |
 | 🔄 Phases | 6 (+ debug lane) | spec → plan → build → review → test → merge |
 | 🔌 Primitives | 7 | the abstract runtime calls (`@dispatch_agent`, `@ask_user`, …) every adapter binds |
 

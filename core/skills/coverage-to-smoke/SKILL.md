@@ -14,8 +14,19 @@ Zero capability dependencies — runs identically on every harness.
 
 ## Step 1 — coverage pass at test time
 
-After the suite passes for a wave, re-run it with the framework's coverage flag, scoped to
-the **changed source files only** (never the whole repo):
+After the suite passes for a wave, re-run it with coverage, scoped to the **changed source
+files only** (never the whole repo).
+
+**Use the user's command first.** Read the `test:` list from `.lifelinerc` (an ordered
+`match`/`cmd`/`coverage` list — see `detecting-project-tooling` and `core/config/defaults.yaml`).
+Group the wave's changed files by their first-matching `test:` entry (a path-prefix `match`
+like `services/api/**` is per-package; first match wins). For each group, run that entry's
+`coverage` command **in the package's directory**, substituting `{module}` with the changed
+module/path where the framework needs it. A monorepo therefore produces several coverage
+runs — one per touched package — whose results merge into the single `TEST_RESULT` coverage
+block. Lifeline never picks a framework when the user has configured one.
+
+**Fallback only when no `test:` entry matches** a changed file — infer from the framework:
 
 | Framework | Coverage command |
 |---|---|

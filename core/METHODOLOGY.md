@@ -24,6 +24,7 @@ Two entry paths, one methodology (no duplicated logic):
 | Phase | Skill | What it owns |
 |---|---|---|
 | Discover | `using-lifeline` | What lifeline can do; how to start |
+| Setup | `detecting-project-tooling` | Detect the project's OWN lint/test commands; propose for `.lifelinerc` |
 | Spec | `spec-discipline` | Raw intent → testable spec; open questions never hidden |
 | Plan | `planning-waves` | 2–3 approaches; dependency-ordered parallel waves; effort labels |
 | Build | `tdd-discipline` | RED-GREEN-REFACTOR + the pre-commit verdict self-check |
@@ -35,6 +36,7 @@ Two entry paths, one methodology (no duplicated logic):
 | Debug | `systematic-debugging` | reproduce → RCA (gated) → fix → verify |
 | Cross | `payload-contracts` | Payload schemas, mandatory writes, retry/override invariants |
 | Cross | `resuming-a-cycle` | Cold resume from persisted state |
+| Diagnose | `adapter-doctor` | Read-only health check: primitives bound? files wired? commands runnable? |
 | Meta | `writing-lifeline-skills` | Extending lifeline without breaking portability |
 
 ## The principles

@@ -15,7 +15,7 @@ flag  >  .lifelinerc  >  core/config/defaults.yaml
 | Layer | Scope | Who writes it |
 |---|---|---|
 | `core/config/defaults.yaml` | Plugin-wide baseline (portable, read on every harness) | Ships with lifeline — don't edit; override below |
-| `.lifelinerc` (repo root) | Per-project | The setup wizard, from your answers ("use last settings?") |
+| `.lifelinerc` (repo root) | Per-project | The setup wizard (`lifecycle setup`, or inline on first `start`) |
 | Flags (e.g. `--auto`, `--retry-cap=N`) | One invocation | You, at the command line |
 
 `.lifelinerc` is committed when its `artifact_root` is repo-relative (shareable with the
@@ -50,6 +50,46 @@ files, every mode.
 
 `flow.md` records `mode=` and `secs=` per dispatch, so you can *measure* the tradeoff
 instead of guessing. On a degraded tier (no native agent) it's always `inline`. 🤷
+
+## 🧹 lint / test — your project's OWN commands
+
+lifeline never imposes a linter or test runner. The setup wizard runs
+`detecting-project-tooling`, which reads your repo's own config (package.json scripts,
+Makefile, pyproject, Cargo, go.mod, monorepo workspaces, …), proposes the commands it
+found, and — after you confirm — writes them to `.lifelinerc` as ordered `lint:`/`test:`
+lists. Nothing detected runs until you confirm it (the trust gate for the hard pre-commit
+hook). The built-in extension map is a **last-resort fallback**, used only when nothing is
+configured *and* the tool happens to be installed (with a loud warning either way).
+
+```yaml
+lint:                         # a changed file's SCOPE = its first matching glob;
+  - match: "**/*.go"          # then EVERY entry under that exact glob runs → linters CHAIN
+    cmd: "make gofmt"
+  - match: "**/*.go"
+    cmd: "make govet"
+  - match: "services/api/**"  # a more-specific scope SHADOWS the catch-all (no inheritance)
+    cmd: "golangci-lint run {file}"
+test:                         # test is FIRST-MATCH-WINS (one coverage tool per package)
+  - match: "services/api/**"
+    cmd: "go test ./..."
+    coverage: "go test -coverprofile=/tmp/ll ./... && go tool cover -func=/tmp/ll"
+  - match: "**"
+    cmd: "npm test"
+    coverage: "npm test -- --coverage"
+```
+
+| Concept | Meaning |
+|---|---|
+| `match` glob | Bounded subset: `**`, `dir/**`, `**/*.ext`, `*.ext`. A `dir/**` prefix is the per-package (monorepo) scope. Anything fancier is a config error `lifecycle doctor` flags. |
+| `{file}` in `cmd` | Run the command **per changed file** (scoped, fast). Absent → a whole-project entrypoint (`npm run lint`), run once when ≥1 changed file matches. |
+| `{module}` in `coverage` | Substituted with the changed module/path where the framework needs it (e.g. Python `--cov=`). |
+| **lint chains** | All `lint:` entries sharing a byte-identical glob run on a matching file — so gofmt + govet + gosec all execute. |
+| **test first-match** | Only the first matching `test:` entry runs (you don't chain coverage tools). |
+
+The orchestrator flattens `lint:` into `<artifact_root>/lint.map` (`glob<TAB>cmd`) so the
+bash pre-commit hook reads it without a YAML parser; it's regenerated on every `start` and
+`--reconfigure`. Skips (missing binary, unconfigured extension) are **loud** — stderr +
+`flow.md` — never silent. Re-run `lifecycle setup` whenever your project's tooling changes.
 
 ## 🔎 Review
 
@@ -142,10 +182,11 @@ commit_format:
 /lifeline:lifecycle start --auto --retry-cap=5
 ```
 
-For anything persistent, let the **setup wizard** write `.lifelinerc` — it asks for
-artifact location, scope defaults, isolation, autonomy, and the advanced knobs, then
-offers "use last settings?" next cycle. Hand-editing `.lifelinerc` works too; it's just
-YAML with the same keys as above.
+For anything persistent, let the **setup wizard** write `.lifelinerc` — run `lifecycle
+setup` (or just `start`, which configures inline the first time). It asks for artifact
+location, scope defaults, isolation, autonomy, the advanced knobs, and your project's
+`lint`/`test` commands; once complete, later cycles skip it (only scope is asked).
+Hand-editing `.lifelinerc` works too; it's just YAML with the same keys as above.
 
 ---
 

@@ -34,9 +34,16 @@ command where the harness has them, otherwise "run the lifeline lifecycle" by na
 lifecycle start            # spec → plan → build → review → test → merge, with gates
 lifecycle debug <desc>     # reproduce → RCA → fix → verify → merge
 lifecycle continue|status|abort
+lifecycle setup            # configure this project once (detect lint/test tools); no cycle
 lifecycle doctor           # read-only adapter health check (primitives bound? files wired?)
 lifecycle guide            # print this map and stop (no cycle)
 ```
+
+**First time in a repo?** Run `lifecycle setup` — it auto-detects your project's own
+lint/test tooling (package.json scripts, Makefile, pyproject, Cargo, monorepo workspaces,
+…), proposes the commands it found, and writes `.lifelinerc` after you confirm. It is
+optional: `lifecycle start` self-configures inline if you skip it. Re-run `setup` whenever
+the project's tooling changes.
 
 `start` opens a short setup wizard first: storage location (in-repo `.lifeline/` or an
 absolute path elsewhere; commit vs gitignore), scope, isolation (git worktree where the
@@ -45,7 +52,7 @@ autonomy (gated/auto), then optional advanced settings (retry-cap, coverage thre
 and dispatch mode — `auto`/`agent`/`inline`, the perf/cost knob for how roles run).
 Choices persist to a repo-root `.lifelinerc`. Once it is complete the wizard is skipped
 entirely on later cycles (only scope is asked) — re-run it any time with
-`lifecycle start --reconfigure`.
+`lifecycle setup` (or `lifecycle start --reconfigure`).
 
 The command sequences the SAME skills with persisted state (`.lifeline/<scope>/`),
 approval gates, structured payloads, and the full artifact trail — so the cycle survives

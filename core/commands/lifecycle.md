@@ -1,7 +1,7 @@
 ---
 name: lifeline-lifecycle
 description: Drive the full lifeline lifecycle (spec → plan → build → review → test → merge, plus a debug lane) with approval gates, structured payloads, coverage-honest testing, and reviewer/QA handoff docs. Portable - speaks only @primitives bound by the active harness adapter.
-argument-hint: "[start|continue|status|abort|debug|doctor|guide] [--auto] [--retry-cap=N] [--reconfigure]"
+argument-hint: "[start|continue|status|abort|debug|setup|doctor|guide] [--auto] [--retry-cap=N] [--reconfigure]"
 ---
 
 # lifecycle
@@ -24,6 +24,11 @@ ambiently without this command; drift between the two paths is a bug).
 - `continue` — resume via the `resuming-a-cycle` skill
 - `status` / `abort` — per `resuming-a-cycle`
 - `debug` — bug-fix lane (see Debug lane below)
+- `setup` — configure THIS project once, then stop. Runs the Step-1 wizard's config
+  portion (storage, isolation, autonomy, advanced, and project-tooling detection) and
+  writes `.lifelinerc` + `<artifact_root>/lint.map`. Skips the per-cycle scope question
+  and starts no cycle. Re-run any time the project's tooling changes (new package, new
+  linter). Optional — `start` still self-configures if you never run it.
 - `doctor` — read-only adapter health check via the `adapter-doctor` skill: report which
   manifest primitives are bound / degraded / missing and whether the adapter's declared
   agent, hook, and command files exist. No git detect, no state, no artifacts. Stop after.
@@ -40,6 +45,15 @@ Load configuration from `core/config/defaults.yaml`, merged with flags.
 If the argument is `doctor`: run the `adapter-doctor` skill against the active
 `adapter.yaml` and `core/capability-manifest.yaml`, print its report, and STOP — do not
 detect git, write state, or start a cycle. Read-only.
+
+If the argument is `setup`: resolve config (Step 1.2), then run the Step-1.3 setup wizard
+in its **full** form (every question shown, any existing `.lifelinerc` value offered as the
+default — same as `--reconfigure`) EXCEPT the scope question (c), which is per-cycle and not
+project config. Write `.lifelinerc` and generate `<artifact_root>/lint.map` exactly as the
+write-step describes. Then STOP — do not detect a cycle branch, apply isolation, instantiate
+templates, init state, or start a phase loop. Setup configures the project; it does not run
+it. (`git` is only consulted to locate the repo root for `.lifelinerc` placement; if there
+is no repo, place it at the current directory and skip git steps.)
 
 If the argument is `guide` (or the invocation is bare with `--help`): run the
 `using-lifeline` skill to print the discovery map and STOP — do not detect git, write
@@ -60,14 +74,18 @@ state, or start a cycle.
 
 3. **Setup wizard.** Decide how much to ask — ask once, not every run:
 
-   - **`.lifelinerc` absent** → run the full wizard (a–g below).
+   - **`.lifelinerc` absent** → print one tip — `tip: run \`/lifeline:lifecycle setup\`
+     once to configure this project up front (auto-detects your lint/test tools); doing it
+     now inline works too` — then run the full wizard (a–h below). Never block on the tip.
    - **`.lifelinerc` complete** (all required keys present: `artifact_root`, `isolation`,
      `autonomy`, `retry_cap`, `coverage_min`, `committed`, `dispatch_mode`; and
      `schema_version` matches the current schema) AND no `--reconfigure` flag → **skip the
-     wizard entirely**. Use the stored values, append flow.md `config.reuse`, and go to
-     step 4. Scope is STILL asked (step c) — it is per-cycle identity, not stored config.
+     wizard entirely**. Use the stored values, regenerate `<artifact_root>/lint.map` from
+     the stored `lint:` (or `lint_fallback`) — the pre-commit hook needs it fresh even when
+     the wizard is skipped — append flow.md `config.reuse`, and go to step 4. Scope is STILL
+     asked (step c) — it is per-cycle identity, not stored config.
    - **`.lifelinerc` incomplete** (one or more required keys absent, or `schema_version`
-     missing/older than current) → ask ONLY the missing/new questions from a–g, merge the
+     missing/older than current) → ask ONLY the missing/new questions from a–h, merge the
      answers with the stored values, rewrite `.lifelinerc`, then go to step 4.
    - **`--reconfigure`** → run the full wizard regardless, showing each stored value as the
      default (the current value is offered first instead of the generic recommended one).
@@ -103,12 +121,28 @@ state, or start a cycle.
       (parallel where supported); `inline` = always warm-context (faster/cheaper on
       small sequential work). Record as `dispatch_mode`. (Degraded tiers run inline
       regardless of this choice.)
+   h. **Project tooling** — run the `detecting-project-tooling` skill to inspect the repo's
+      OWN config (package.json scripts, Makefile, pyproject, Cargo.toml, monorepo
+      workspaces, etc.) and propose `lint:`/`test:` command lists. Lifeline never imposes a
+      tool when the project has one. `@ask_user`:
+      `Use detected commands (recommended)` / `edit` / `skip (built-in fallback)`. Show each
+      proposed entry with its provenance. On `edit`, let the user amend the lists. On `skip`,
+      leave `lint:`/`test:` unset — the built-in `lint_fallback` map applies (loud warn).
+      **Nothing detected runs until confirmed here** — this is the trust gate for the
+      pre-commit hook's arbitrary-shell execution. Record the confirmed `lint:`/`test:` lists.
 
    **Write `.lifelinerc`** at the repo root with the resolved set (`schema_version`,
    `artifact_root`, `isolation`, `autonomy`, `retry_cap`, `coverage_min`, `committed`,
-   `dispatch_mode`). `schema_version` records the wizard schema these keys satisfy; a
+   `dispatch_mode`, and the confirmed `lint:`/`test:` lists if any). `schema_version`
+   records the wizard schema these keys satisfy; a
    future lifeline that adds a required key bumps it, and the incomplete-`.lifelinerc`
-   path above then re-asks ONLY the new keys rather than the whole wizard. Git rule for the
+   path above then re-asks ONLY the new keys rather than the whole wizard.
+
+   **Generate `<artifact_root>/lint.map`** — flatten the `lint:` list (or the
+   `lint_fallback` map if `lint:` is unset) to one `<glob>\t<cmd>` line per entry, order
+   preserved (= match priority). This is the flat file the bash pre-commit `@run_hook`
+   reads WITHOUT a YAML parser. Regenerate it here on every `start` and on `--reconfigure`
+   so it never drifts from `.lifelinerc`. Git rule for the
    pointer itself: if `artifact_root` is repo-relative, the `.lifelinerc` is portable —
    leave it tracked (it carries no machine paths). If `artifact_root` is an absolute path,
    it is machine-specific — append `.lifelinerc` to `.gitignore` so it never leaks to

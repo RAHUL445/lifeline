@@ -87,8 +87,9 @@ tradeoff instead of guessing. On a degraded tier it's a no-op (always inline).
 
 ### What's `.lifelinerc`?
 A repo-root YAML file the wizard writes with your choices (artifact location, scope
-defaults, isolation, autonomy, advanced settings). The next cycle offers "use last
-settings?". It's committed when the artifact path is relative (shareable) and gitignored
+defaults, isolation, autonomy, advanced settings, and detected `lint`/`test` commands).
+Once complete, later cycles skip the wizard entirely (only scope is asked); re-run it with
+`lifecycle setup`. It's committed when the artifact path is relative (shareable) and gitignored
 when it's an absolute path (machine-specific, nobody else cares about your `/Users/you/...`).
 
 ### Where do artifacts go, and can I keep them out of git?
