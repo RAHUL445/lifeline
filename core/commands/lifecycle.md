@@ -1,7 +1,7 @@
 ---
 name: lifeline-lifecycle
 description: Drive the full lifeline lifecycle (spec → plan → build → review → test → merge, plus a debug lane) with approval gates, structured payloads, coverage-honest testing, and reviewer/QA handoff docs. Portable - speaks only @primitives bound by the active harness adapter.
-argument-hint: "[start|continue|status|abort|debug|guide] [--auto] [--retry-cap=N]"
+argument-hint: "[start|continue|status|abort|debug|doctor|guide] [--auto] [--retry-cap=N] [--reconfigure]"
 ---
 
 # lifecycle
@@ -24,12 +24,22 @@ ambiently without this command; drift between the two paths is a bug).
 - `continue` — resume via the `resuming-a-cycle` skill
 - `status` / `abort` — per `resuming-a-cycle`
 - `debug` — bug-fix lane (see Debug lane below)
+- `doctor` — read-only adapter health check via the `adapter-doctor` skill: report which
+  manifest primitives are bound / degraded / missing and whether the adapter's declared
+  agent, hook, and command files exist. No git detect, no state, no artifacts. Stop after.
 - `guide` (also bare invocation with `--help`) — print the `using-lifeline` discovery
   map (entry modes, ambient triggers, what each artifact is) and stop. No cycle started.
 - `--auto` — skip gates except pre-merge
 - `--retry-cap=N` — override `config retry_cap` (default 3)
+- `--reconfigure` — force the full setup wizard even when a complete `.lifelinerc` exists
+  (current values shown as the defaults). Without it, a complete `.lifelinerc` skips the
+  wizard entirely (see Step 1).
 
 Load configuration from `core/config/defaults.yaml`, merged with flags.
+
+If the argument is `doctor`: run the `adapter-doctor` skill against the active
+`adapter.yaml` and `core/capability-manifest.yaml`, print its report, and STOP — do not
+detect git, write state, or start a cycle. Read-only.
 
 If the argument is `guide` (or the invocation is bare with `--help`): run the
 `using-lifeline` skill to print the discovery map and STOP — do not detect git, write
@@ -48,11 +58,23 @@ state, or start a cycle.
    It also sets `dispatch_mode` (`auto` | `agent` | `inline`) — how every
    `@dispatch_agent` below runs (see **Dispatch mode** after Step 2).
 
-3. **Setup wizard.** If `.lifelinerc` exists, FIRST `@ask_user`:
-   `Use last settings (location=<…> isolation=<…> autonomy=<…> dispatch=<…>)?` → reuse / reconfigure.
-   On reuse, skip to step 4 with those values (scope is still asked — it's per-cycle).
-   Otherwise ask, in order (one gate each; recommended option first; flags pre-answer and
-   skip a question — `--auto` answers autonomy, `--retry-cap` answers retry-cap):
+3. **Setup wizard.** Decide how much to ask — ask once, not every run:
+
+   - **`.lifelinerc` absent** → run the full wizard (a–g below).
+   - **`.lifelinerc` complete** (all required keys present: `artifact_root`, `isolation`,
+     `autonomy`, `retry_cap`, `coverage_min`, `committed`, `dispatch_mode`; and
+     `schema_version` matches the current schema) AND no `--reconfigure` flag → **skip the
+     wizard entirely**. Use the stored values, append flow.md `config.reuse`, and go to
+     step 4. Scope is STILL asked (step c) — it is per-cycle identity, not stored config.
+   - **`.lifelinerc` incomplete** (one or more required keys absent, or `schema_version`
+     missing/older than current) → ask ONLY the missing/new questions from a–g, merge the
+     answers with the stored values, rewrite `.lifelinerc`, then go to step 4.
+   - **`--reconfigure`** → run the full wizard regardless, showing each stored value as the
+     default (the current value is offered first instead of the generic recommended one).
+
+   When asking (full or partial), go in order (one gate each; recommended/current option
+   first; flags pre-answer and skip a question — `--auto` answers autonomy, `--retry-cap`
+   answers retry-cap):
 
    a. **Storage location** — `@ask_user`: `in-repo .lifeline/ (recommended)` /
       `outside repo`. On `outside repo`, `@ask_user` for an absolute path (default
@@ -82,9 +104,11 @@ state, or start a cycle.
       small sequential work). Record as `dispatch_mode`. (Degraded tiers run inline
       regardless of this choice.)
 
-   **Write `.lifelinerc`** at the repo root with the resolved set (`artifact_root`,
-   `isolation`, `autonomy`, `retry_cap`, `coverage_min`, `committed`, `dispatch_mode`).
-   Git rule for the
+   **Write `.lifelinerc`** at the repo root with the resolved set (`schema_version`,
+   `artifact_root`, `isolation`, `autonomy`, `retry_cap`, `coverage_min`, `committed`,
+   `dispatch_mode`). `schema_version` records the wizard schema these keys satisfy; a
+   future lifeline that adds a required key bumps it, and the incomplete-`.lifelinerc`
+   path above then re-asks ONLY the new keys rather than the whole wizard. Git rule for the
    pointer itself: if `artifact_root` is repo-relative, the `.lifelinerc` is portable —
    leave it tracked (it carries no machine paths). If `artifact_root` is an absolute path,
    it is machine-specific — append `.lifelinerc` to `.gitignore` so it never leaks to

@@ -8,6 +8,24 @@ versioning is [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 _Nothing yet._
 
+## [1.1.0] — 2026-06-14
+
+### Added
+
+- **`lifecycle doctor`** — a read-only adapter health check (new portable `adapter-doctor`
+  skill). Reports which of the 7 manifest primitives are bound / degraded / missing, and
+  whether the adapter's declared agent, hook, and command files actually exist — without
+  running a cycle. Catches "adapter.yaml says native but the backing file is gone" before
+  it surfaces mid-run.
+
+### Changed
+
+- **Setup wizard now asks once.** A complete `.lifelinerc` skips the wizard entirely on
+  later cycles (only per-cycle scope is asked) instead of prompting "use last settings?"
+  every run. An incomplete `.lifelinerc` re-asks only the missing keys; `--reconfigure`
+  forces the full wizard with current values as defaults. New `schema_version` key lets a
+  future required-key addition re-ask only the new keys.
+
 ## [1.0.0] — 2026-06-14
 
 Stable release — public surface (install commands, `/lifeline:lifecycle` interface,
@@ -51,6 +69,7 @@ First public release. 🪢
 - **Docs** — Getting Started, Configuration, FAQ, Architecture, Portability,
   Adding-a-harness, plus the methodology master index.
 
-[Unreleased]: https://github.com/RAHUL445/lifeline/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/RAHUL445/lifeline/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/RAHUL445/lifeline/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/RAHUL445/lifeline/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/RAHUL445/lifeline/releases/tag/v0.5.0

@@ -1,6 +1,11 @@
 # lifeline default configuration (portable — read by core/commands/lifecycle.md on every
 # harness; override per repo with .lifeline/config.yaml or per invocation with flags).
 
+wizard_schema_version: 1     # current set of required .lifelinerc keys. A complete .lifelinerc
+                             # at this version skips the setup wizard entirely (ask-once). Bump
+                             # this when a release adds a required key — the wizard then re-asks
+                             # ONLY the new keys, not the whole set. Stored as schema_version in
+                             # each repo's .lifelinerc.
 retry_cap: 3                 # test/review retry attempts per wave before @ask_user
 autonomy: gated              # gated (pause at spec/plan/merge) | auto (pause at merge only)
 isolation: branch            # default offered at the startup wizard: worktree (FULL only) |

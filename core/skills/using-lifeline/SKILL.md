@@ -34,6 +34,7 @@ command where the harness has them, otherwise "run the lifeline lifecycle" by na
 lifecycle start            # spec → plan → build → review → test → merge, with gates
 lifecycle debug <desc>     # reproduce → RCA → fix → verify → merge
 lifecycle continue|status|abort
+lifecycle doctor           # read-only adapter health check (primitives bound? files wired?)
 lifecycle guide            # print this map and stop (no cycle)
 ```
 
@@ -42,7 +43,9 @@ absolute path elsewhere; commit vs gitignore), scope, isolation (git worktree wh
 adapter supports it, else a new `lifeline/<scope>` branch or the current branch),
 autonomy (gated/auto), then optional advanced settings (retry-cap, coverage threshold,
 and dispatch mode — `auto`/`agent`/`inline`, the perf/cost knob for how roles run).
-Choices persist to a repo-root `.lifelinerc`, so the next cycle offers "use last settings?".
+Choices persist to a repo-root `.lifelinerc`. Once it is complete the wizard is skipped
+entirely on later cycles (only scope is asked) — re-run it any time with
+`lifecycle start --reconfigure`.
 
 The command sequences the SAME skills with persisted state (`.lifeline/<scope>/`),
 approval gates, structured payloads, and the full artifact trail — so the cycle survives
